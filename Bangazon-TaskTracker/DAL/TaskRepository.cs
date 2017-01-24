@@ -8,7 +8,14 @@ namespace Bangazon_TaskTracker.DAL
 {
     public class TaskRepository
     {
-        //public TaskContext Context { get; set; }
-        
+        public TaskContext Context { get; set; }
+        public TaskRepository(TaskContext _context)
+        {
+            Context = _context;
+        }
+        public TaskRepository()
+        {
+            Context = new TaskContext();
+        }
     }
 }
