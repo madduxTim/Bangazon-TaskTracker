@@ -6,6 +6,8 @@ using Bangazon_TaskTracker.Models;
 using System.Data.Entity;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using static Bangazon_TaskTracker.Models.Task;
 
 namespace Bangazon_TaskTracker.Tests.DAL
 {
@@ -13,7 +15,6 @@ namespace Bangazon_TaskTracker.Tests.DAL
     public class TaskRepoTests
     {
         private Mock<TaskContext> context = new Mock<TaskContext>();
-
         private Mock<DbSet<Task>> Tasks { get; set; }
         private List<Task> TaskList { get; set; }
 
@@ -22,14 +23,13 @@ namespace Bangazon_TaskTracker.Tests.DAL
         {
             Tasks = new Mock<DbSet<Task>>();
             TaskList = new List<Task>
-            {
+            { 
                 new Task { Id = 1, Name = "Name field 1", Description = "Description field 1" },
                 new Task { Id = 2, Name = "Name field 2", Description = "Description field 2" },
                 new Task { Id = 3, Name = "Name field 3", Description = "Description field 3" },
                 new Task { Id = 4, Name = "Name field 4", Description = "Description field 4" },
                 new Task { Id = 5, Name = "Name field 5", Description = "Description field 5" }
             };
-
             SetUpMocksAsQueryable();
         }
 
@@ -79,8 +79,8 @@ namespace Bangazon_TaskTracker.Tests.DAL
             TaskRepository repo = new TaskRepository(context.Object);
             Task newTask = new Task { Id = 6, Name = "Name field 6", Description = "Description field 6" };
             //Act                        
-            repo.Add(newTask);
-            //List<Task> taskList = repo.GetAll();
+            repo.AddTask(newTask);
+            //List<Task> taskList = repo.GetAll(); 
             //Assert
             Assert.AreEqual(repo.Context.Tasks.Count(), 6);
         }
@@ -92,14 +92,47 @@ namespace Bangazon_TaskTracker.Tests.DAL
             TaskRepository repo = new TaskRepository(context.Object);
             Task targetTask = new Task { Id = 6, Name = "Name field 6", Description = "Description field 6" };
             //Act
-            repo.Add(targetTask);
-            //List<Task> taskList = repo.GetAll(); // I need some assistance REALLY getting this... 
+            repo.AddTask(targetTask);
+            //List<Task> taskList = repo.GetAll(); // I need some assistance REALLY getting this... and line 83
             //Assert
             Assert.AreEqual(repo.Context.Tasks.Count(), 6);
             //Act Again 
-            repo.Remove(targetTask);
+            repo.RemoveTask(targetTask);
             //Assert Again 
             Assert.AreEqual(repo.Context.Tasks.Count(), 5);
+        }
+
+        [TestMethod]
+        public void CanUpdateTask()
+        {
+            //Arrange
+            var repo = new TaskRepository(context.Object);
+            Task targetTask = new Task { Id = 6, Name = "Old", Description = "oldDescription", CompletedOn = new DateTime(2009, 8, 1, 0, 0, 0), Status=eStatus.InProgress };
+            //Act
+            repo.AddTask(targetTask);
+            //Thread.Sleep(5000);
+            Task update = new Task { Id = 6, Name = "New", Description = "newDescription", CompletedOn=DateTime.Now, Status=eStatus.Complete };
+            repo.UpdateTask(update);
+            //Assert             
+            Assert.AreEqual(repo.Context.Tasks.First(t => t.Id == 6).Name, "New");
+            Assert.AreEqual(repo.Context.Tasks.First(t => t.Id == 6).Description, "newDescription");
+            Assert.AreEqual(repo.Context.Tasks.First(t => t.Id == 6).CompletedOn, targetTask.CompletedOn);
+            Assert.AreEqual(repo.Context.Tasks.First(t => t.Id == 6).Status, eStatus.Complete);
+            Assert.AreEqual(repo.Context.Tasks.Count(), 6);
+        }
+
+        [TestMethod]
+        public void WillReturnNullIfIdNotFound()
+        {
+            //Arrange
+            var repo = new TaskRepository(context.Object);
+            //Act
+            Task errorTask = new Task { Id = 1000, Name = "Name", Description = "Description" };
+            var removeResult = repo.RemoveTask(errorTask);
+            var updateResult = repo.UpdateTask(errorTask);
+            //Assert
+            Assert.IsNull(removeResult);
+            Assert.IsNull(updateResult);
         }
     }
 }
