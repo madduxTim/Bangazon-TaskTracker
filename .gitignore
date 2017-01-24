@@ -178,6 +178,7 @@ BundleArtifacts/
 
 # Others
 ClientBin/
+Migrations/
 [Ss]tyle[Cc]op.*
 ~$*
 *~
