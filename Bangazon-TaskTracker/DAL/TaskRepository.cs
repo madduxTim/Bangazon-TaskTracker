@@ -17,5 +17,10 @@ namespace Bangazon_TaskTracker.DAL
         {
             Context = new TaskContext();
         }
+
+        public List<Task> GetAll()
+        {
+            return Context.Tasks.ToList();
+        }
     }
 }
