@@ -22,5 +22,17 @@ namespace Bangazon_TaskTracker.DAL
         {
             return Context.Tasks.ToList();
         }
+
+        public void Add(Task newTask)
+        {
+            Context.Tasks.Add(newTask);
+            Context.SaveChanges();
+        }
+
+        public void Remove(Task targetTask)
+        {
+            Context.Tasks.Remove(targetTask);
+            Context.SaveChanges();
+        }
     }
 }

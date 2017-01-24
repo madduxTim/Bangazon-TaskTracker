@@ -13,6 +13,7 @@ namespace Bangazon_TaskTracker.Tests.DAL
     public class TaskRepoTests
     {
         private Mock<TaskContext> context = new Mock<TaskContext>();
+
         private Mock<DbSet<Task>> Tasks { get; set; }
         private List<Task> TaskList { get; set; }
 
@@ -28,7 +29,7 @@ namespace Bangazon_TaskTracker.Tests.DAL
                 new Task { Id = 4, Name = "Name field 4", Description = "Description field 4" },
                 new Task { Id = 5, Name = "Name field 5", Description = "Description field 5" }
             };
-            context.Setup(x => x.Tasks).Returns(Tasks.Object);
+
             SetUpMocksAsQueryable();
         }
 
@@ -39,6 +40,9 @@ namespace Bangazon_TaskTracker.Tests.DAL
             Tasks.As<IQueryable<Task>>().Setup(t => t.Expression).Returns(taskQueryable.Expression);
             Tasks.As<IQueryable<Task>>().Setup(t => t.ElementType).Returns(taskQueryable.ElementType);
             Tasks.As<IQueryable<Task>>().Setup(t => t.GetEnumerator()).Returns(taskQueryable.GetEnumerator());
+            context.Setup(x => x.Tasks).Returns(Tasks.Object);
+            Tasks.Setup(t => t.Add(It.IsAny<Task>())).Callback((Task t) => TaskList.Add(t));
+            Tasks.Setup(t => t.Remove(It.IsAny<Task>())).Callback((Task t) => TaskList.Remove(t));
         }
 
         [TestMethod]
@@ -66,6 +70,36 @@ namespace Bangazon_TaskTracker.Tests.DAL
             //Assert
             Assert.IsNotNull(actualTasks);
             Assert.AreEqual(actualTasks.Count, 5);
+        }
+
+        [TestMethod]
+        public void CanAddTask()
+        {
+            //Arrange
+            TaskRepository repo = new TaskRepository(context.Object);
+            Task newTask = new Task { Id = 6, Name = "Name field 6", Description = "Description field 6" };
+            //Act                        
+            repo.Add(newTask);
+            //List<Task> taskList = repo.GetAll();
+            //Assert
+            Assert.AreEqual(repo.Context.Tasks.Count(), 6);
+        }
+
+        [TestMethod]
+        public void CanDeleteTask()
+        {
+            //Arrange
+            TaskRepository repo = new TaskRepository(context.Object);
+            Task targetTask = new Task { Id = 6, Name = "Name field 6", Description = "Description field 6" };
+            //Act
+            repo.Add(targetTask);
+            //List<Task> taskList = repo.GetAll(); // I need some assistance REALLY getting this... 
+            //Assert
+            Assert.AreEqual(repo.Context.Tasks.Count(), 6);
+            //Act Again 
+            repo.Remove(targetTask);
+            //Assert Again 
+            Assert.AreEqual(repo.Context.Tasks.Count(), 5);
         }
     }
 }
