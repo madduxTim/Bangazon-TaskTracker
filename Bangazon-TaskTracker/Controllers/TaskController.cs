@@ -49,9 +49,17 @@ namespace Bangazon_TaskTracker.Controllers
         }
     
         // DELETE api/Task/#
-        //public void Delete(int id)
-        //{
-        //    Repo.RemoveTask(id);
-        //}
+        [HttpDelete, Route("{id}")]  
+        public HttpResponseMessage Delete(int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+            } else
+            {
+                Repo.RemoveTask(id);
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }            
+        }
     }
 }

@@ -91,13 +91,14 @@ namespace Bangazon_TaskTracker.Tests.DAL
             //Arrange
             TaskRepository repo = new TaskRepository(context.Object);
             Task targetTask = new Task { Id = 6, Name = "Name field 6", Description = "Description field 6" };
+            int targetTaskId = targetTask.Id;
             //Act
             repo.AddTask(targetTask);
             //List<Task> taskList = repo.GetAll(); // I need some assistance REALLY getting this... and line 83
             //Assert
             Assert.AreEqual(repo.Context.Tasks.Count(), 6);
             //Act Again 
-            repo.RemoveTask(targetTask);
+            repo.RemoveTask(targetTaskId);
             //Assert Again 
             Assert.AreEqual(repo.Context.Tasks.Count(), 5);
         }
@@ -122,16 +123,14 @@ namespace Bangazon_TaskTracker.Tests.DAL
         }
 
         [TestMethod]
-        public void WillReturnNullIfIdNotFound()
+        public void WillReturnNullIfIdNotFoundForUpdate()
         {
             //Arrange
             var repo = new TaskRepository(context.Object);
             //Act
-            Task errorTask = new Task { Id = 1000, Name = "Name", Description = "Description" };
-            var removeResult = repo.RemoveTask(errorTask);
+            Task errorTask = new Task { Id = 1000, Name = "Name", Description = "Description" };         
             var updateResult = repo.UpdateTask(errorTask);
             //Assert
-            Assert.IsNull(removeResult);
             Assert.IsNull(updateResult);
         }
     }

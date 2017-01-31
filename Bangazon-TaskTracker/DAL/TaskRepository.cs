@@ -30,18 +30,11 @@ namespace Bangazon_TaskTracker.DAL
             return newTask;
         }
 
-        public Task RemoveTask(Task targetTask)
+        public void RemoveTask(int targetTaskId)
         {
-            Task found_task = Context.Tasks.FirstOrDefault(t => t.Id == targetTask.Id);
-            if (found_task != null)
-            {
-                Context.Tasks.Remove(targetTask);
-                Context.SaveChanges();
-                return targetTask;
-            } else
-            {
-                return null;
-            }
+            Task found_task = Context.Tasks.FirstOrDefault(t => t.Id == targetTaskId);
+            Context.Tasks.Remove(found_task);
+            Context.SaveChanges();
         }
 
         public Task UpdateTask(Task targetTask)
