@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Bangazon_TaskTracker.DAL;
+using Bangazon_TaskTracker.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,33 +9,57 @@ using System.Web.Http;
 
 namespace Bangazon_TaskTracker.Controllers
 {
+    [RoutePrefix ("api/Task")]
     public class TaskController : ApiController
     {
-        // GET api/<controller>
-        public IEnumerable<string> Get()
+        TaskRepository Repo = new TaskRepository();
+
+        // GET api/Task
+        public IEnumerable<Task> Get()
         {
-            return new string[] { "value1", "value2" };
+            return Repo.GetAll();
         }
 
-        // GET api/<controller>/5
-        public string Get(int id)
+        // POST api/Task
+        [HttpPost]
+        public HttpResponseMessage Post([FromBody]Task value)
         {
-            return "value";
+            if (!ModelState.IsValid)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+            } else
+            {
+                Repo.AddTask(value);
+                return Request.CreateResponse(HttpStatusCode.Created);
+            }
         }
 
-        // POST api/<controller>
-        public void Post([FromBody]string value)
+        // PUT api/Task/#
+        [HttpPut, Route("{id}")]
+        public HttpResponseMessage Put(int id, [FromBody]Task value)
         {
+            if (!ModelState.IsValid)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+            } else
+            {
+                Repo.UpdateTask(value);
+                return Request.CreateResponse(HttpStatusCode.Accepted);
+            }
         }
-
-        // PUT api/<controller>/5
-        public void Put(int id, [FromBody]string value)
+    
+        // DELETE api/Task/#
+        [HttpDelete, Route("{id}")]  
+        public HttpResponseMessage Delete(int id)
         {
-        }
-
-        // DELETE api/<controller>/5
-        public void Delete(int id)
-        {
+            if (!ModelState.IsValid)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+            } else
+            {
+                Repo.RemoveTask(id);
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }            
         }
     }
 }
