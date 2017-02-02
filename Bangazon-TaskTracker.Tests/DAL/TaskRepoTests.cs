@@ -23,12 +23,12 @@ namespace Bangazon_TaskTracker.Tests.DAL
         {
             Tasks = new Mock<DbSet<Task>>();
             TaskList = new List<Task>
-            { 
-                new Task { Id = 1, Name = "Name field 1", Description = "Description field 1" },
-                new Task { Id = 2, Name = "Name field 2", Description = "Description field 2" },
-                new Task { Id = 3, Name = "Name field 3", Description = "Description field 3" },
-                new Task { Id = 4, Name = "Name field 4", Description = "Description field 4" },
-                new Task { Id = 5, Name = "Name field 5", Description = "Description field 5" }
+            {
+                new Task { Id = 1, Name = "Name field 1", Description = "Description field 1", Status = eStatus.ToDo },
+                new Task { Id = 2, Name = "Name field 2", Description = "Description field 2", Status = eStatus.ToDo },
+                new Task { Id = 3, Name = "Name field 3", Description = "Description field 3", Status = eStatus.InProgress },
+                new Task { Id = 4, Name = "Name field 4", Description = "Description field 4", Status = eStatus.Complete },
+                new Task { Id = 5, Name = "Name field 5", Description = "Description field 5", Status = eStatus.Complete }
             };
             SetUpMocksAsQueryable();
         }
@@ -108,11 +108,11 @@ namespace Bangazon_TaskTracker.Tests.DAL
         {
             //Arrange
             var repo = new TaskRepository(context.Object);
-            Task targetTask = new Task { Id = 6, Name = "Old", Description = "oldDescription", CompletedOn = new DateTime(2009, 8, 1, 0, 0, 0), Status=eStatus.InProgress };
+            Task targetTask = new Task { Id = 6, Name = "Old", Description = "oldDescription", CompletedOn = new DateTime(2009, 8, 1, 0, 0, 0), Status = eStatus.InProgress };
             //Act
             repo.AddTask(targetTask);
             //Thread.Sleep(5000);
-            Task update = new Task { Id = 6, Name = "New", Description = "newDescription", CompletedOn=DateTime.Now, Status=eStatus.Complete };
+            Task update = new Task { Id = 6, Name = "New", Description = "newDescription", CompletedOn = DateTime.Now, Status = eStatus.Complete };
             repo.UpdateTask(update);
             //Assert             
             Assert.AreEqual(repo.Context.Tasks.First(t => t.Id == 6).Name, "New");
@@ -128,10 +128,28 @@ namespace Bangazon_TaskTracker.Tests.DAL
             //Arrange
             var repo = new TaskRepository(context.Object);
             //Act
-            Task errorTask = new Task { Id = 1000, Name = "Name", Description = "Description" };         
+            Task errorTask = new Task { Id = 1000, Name = "Name", Description = "Description" };
             var updateResult = repo.UpdateTask(errorTask);
             //Assert
             Assert.IsNull(updateResult);
+        }
+
+        [TestMethod]
+        public void CanReturnAllOfAnyParticularStatus()
+        {
+            //Arrange
+            var repo = new TaskRepository(context.Object);
+            //Act
+            int status1 = 1;
+            int status2 = 2;
+            int status3 = 3;
+            List<Task> todoTasks = repo.GetTasksByStatus(status1);
+            List<Task> inProgressTasks = repo.GetTasksByStatus(status2);
+            List<Task> doneTasks = repo.GetTasksByStatus(status3);
+            //Assert
+            Assert.AreEqual(todoTasks.Count, 2);
+            Assert.AreEqual(inProgressTasks.Count, 1);
+            Assert.AreEqual(doneTasks.Count, 2);
         }
     }
 }
