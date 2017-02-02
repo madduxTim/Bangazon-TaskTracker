@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Bangazon_TaskTracker.Models;
+using static Bangazon_TaskTracker.Models.Task;
 
 namespace Bangazon_TaskTracker.DAL
 {
@@ -53,6 +54,32 @@ namespace Bangazon_TaskTracker.DAL
                 return null;
             }
 
+        }
+
+        public List<Task> GetTasksByStatus(int statusNum)
+        {
+            List<Task> listToReturn = new List<Task>();
+            if (statusNum == 1)
+            {
+                foreach (Task task in Context.Tasks.Where(t => t.Status == eStatus.ToDo))
+                {
+                    listToReturn.Add(task);
+                }
+            } else if (statusNum == 2)
+            {
+                foreach (Task task in Context.Tasks.Where(t => t.Status == eStatus.InProgress))
+                {
+                    listToReturn.Add(task);
+                }
+            } else if (statusNum == 3)
+            {
+                foreach (Task task in Context.Tasks.Where(t => t.Status == eStatus.Complete))
+                {
+                    listToReturn.Add(task);
+                }
+            }
+            //return Context.Tasks.ToList();
+            return listToReturn;
         }
     }
 }
